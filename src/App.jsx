@@ -35,7 +35,7 @@ const content = {
           title: '失智照護的參與式設計',
           titleEn: 'Participatory Design for Dementia Care',
           tagline: '為很少人替他們發聲的照護者,做被看見的設計。',
-          desc: '我自 2018 年起先在板橋榮家展開田野,2019 年擴展到台北榮家。透過參與式設計方法,與失智長輩、照護者共同開發多組關係性科技—夢想存錢筒、拾億手環、健康水管家。我的研究關心的不只是「科技能做什麼」,更想凸顯一件事:照護者的工作與價值長期被低估,卻很少人幫他們發聲。近年成果發表於 Dementia (SSCI)、JMIR Serious Games (SCIE) 等期刊。',
+          desc: '我自 2018 年起先在板橋榮家展開田野,2019 年擴展到台北榮家。透過參與式設計方法,與失智長輩、照護者共同開發多組關係性科技—夢想存錢筒、拾億手環、健康水管家。我的研究關心的不只是「科技能做什麼」,更想凸顯一件事:照護者的工作與價值長期被低估,卻很少人幫他們發聲。近年成果發表於 Dementia (SSCI)。',
           keywords: ['Participatory Design', 'Dementia Care', 'Relational Technology', 'Person-Centered Care'],
           projects: [1, 6],
         },
@@ -207,7 +207,7 @@ const content = {
           title: 'Participatory Design for Dementia Care',
           titleEn: '失智照護的參與式設計',
           tagline: 'Designing to make visible the caregivers whose voices too few have carried.',
-          desc: 'I began fieldwork at Banqiao Veterans Home in 2018 and extended to Taipei Veterans Home in 2019. Through participatory design with residents living with dementia and their caregivers, we have co-developed a series of relational technologies — Dream Coin Bank (夢想存錢筒), Memory Bracelet (拾億手環), and Health Water Butler (健康水管家). My research is not only about what technology can do. I want to foreground something else: the work and value of caregivers have long been undervalued, and too few are speaking up on their behalf. Recent outcomes are published in Dementia (SSCI) and JMIR Serious Games (SCIE).',
+          desc: 'I began fieldwork at Banqiao Veterans Home in 2018 and extended to Taipei Veterans Home in 2019. Through participatory design with residents living with dementia and their caregivers, we have co-developed a series of relational technologies — Dream Coin Bank (夢想存錢筒), Memory Bracelet (拾億手環), and Health Water Butler (健康水管家). My research is not only about what technology can do. I want to foreground something else: the work and value of caregivers have long been undervalued, and too few are speaking up on their behalf. Recent outcomes are published in Dementia (SSCI).',
           keywords: ['Participatory Design', 'Dementia Care', 'Relational Technology', 'Person-Centered Care'],
           projects: [1, 6],
         },
@@ -1105,10 +1105,19 @@ const GrainTexture = () => (
 
 const Nav = ({ lang, setLang, t, route, navigate }) => {
   const [scrolled, setScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
     window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+    };
   }, []);
 
   const routes = ['home', 'about', 'projects', 'publications', 'teaching', 'talks', 'service'];
@@ -1116,66 +1125,125 @@ const Nav = ({ lang, setLang, t, route, navigate }) => {
     ? ['首頁', '關於', '研究與實踐', '論文', '教學', '演講', '服務']
     : ['Home', 'About', 'Research & Practice', 'Publications', 'Teaching', 'Talks', 'Service'];
 
+  const handleNavClick = (r) => {
+    navigate(r);
+    setMenuOpen(false);
+  };
+
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      padding: scrolled ? '16px 48px' : '28px 48px',
-      background: scrolled ? 'rgba(245, 241, 232, 0.92)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(12px)' : 'none',
+      padding: scrolled ? (isMobile ? '12px 20px' : '16px 48px') : (isMobile ? '20px 20px' : '28px 48px'),
+      background: scrolled || menuOpen ? 'rgba(245, 241, 232, 0.92)' : 'transparent',
+      backdropFilter: scrolled || menuOpen ? 'blur(12px)' : 'none',
       borderBottom: scrolled ? '1px solid rgba(60, 50, 40, 0.08)' : 'none',
       transition: 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       fontFamily: 'var(--sans)',
+      flexWrap: 'wrap',
     }}>
-      <button onClick={() => navigate('home')} style={{
+      <button onClick={() => handleNavClick('home')} style={{
         fontFamily: 'var(--serif)',
-        fontSize: '20px', fontWeight: 500, letterSpacing: '-0.01em',
+        fontSize: isMobile ? '17px' : '20px', fontWeight: 500, letterSpacing: '-0.01em',
         color: 'var(--ink)', background: 'none', border: 'none', cursor: 'pointer',
-        display: 'flex', alignItems: 'baseline', gap: '12px', padding: 0,
+        display: 'flex', alignItems: 'baseline', gap: isMobile ? '8px' : '12px', padding: 0,
       }}>
         <span>Yen-Fu Chen</span>
-        <span style={{ fontSize: '13px', color: 'var(--muted)', fontWeight: 400 }}>陳彥甫</span>
+        <span style={{ fontSize: isMobile ? '11px' : '13px', color: 'var(--muted)', fontWeight: 400 }}>陳彥甫</span>
       </button>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-        {routes.map((r, i) => (
-          <button
-            key={r}
-            onClick={() => navigate(r)}
-            style={{
-              fontSize: '13px',
-              color: route === r ? 'var(--accent)' : 'var(--ink)',
-              background: 'none', border: 'none', cursor: 'pointer',
-              padding: '8px 14px', letterSpacing: '0.02em',
-              fontFamily: 'var(--sans)',
-              transition: 'color 0.2s',
-              fontWeight: route === r ? 600 : 400,
-              position: 'relative',
-            }}
-            onMouseEnter={e => { if (route !== r) e.target.style.color = 'var(--accent)'; }}
-            onMouseLeave={e => { if (route !== r) e.target.style.color = 'var(--ink)'; }}
-          >
-            {navLabels[i]}
-            {route === r && (
-              <span style={{
-                position: 'absolute', bottom: '2px', left: '14px', right: '14px',
-                height: '1px', background: 'var(--accent)',
-              }} />
-            )}
+      {/* Desktop nav */}
+      {!isMobile && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+          {routes.map((r, i) => (
+            <button
+              key={r}
+              onClick={() => navigate(r)}
+              style={{
+                fontSize: '13px',
+                color: route === r ? 'var(--accent)' : 'var(--ink)',
+                background: 'none', border: 'none', cursor: 'pointer',
+                padding: '8px 14px', letterSpacing: '0.02em',
+                fontFamily: 'var(--sans)',
+                transition: 'color 0.2s',
+                fontWeight: route === r ? 600 : 400,
+                position: 'relative',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={e => { if (route !== r) e.target.style.color = 'var(--accent)'; }}
+              onMouseLeave={e => { if (route !== r) e.target.style.color = 'var(--ink)'; }}
+            >
+              {navLabels[i]}
+              {route === r && (
+                <span style={{
+                  position: 'absolute', bottom: '2px', left: '14px', right: '14px',
+                  height: '1px', background: 'var(--accent)',
+                }} />
+              )}
+            </button>
+          ))}
+          <button onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} style={{
+            marginLeft: '16px', padding: '8px 14px',
+            border: '1px solid var(--ink)', background: 'transparent',
+            fontFamily: 'var(--sans)', fontSize: '12px', letterSpacing: '0.08em',
+            cursor: 'pointer', color: 'var(--ink)',
+            transition: 'all 0.3s',
+          }}
+          onMouseEnter={e => { e.target.style.background = 'var(--ink)'; e.target.style.color = 'var(--cream)'; }}
+          onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.color = 'var(--ink)'; }}>
+            {lang === 'zh' ? 'EN' : '中'}
           </button>
-        ))}
-        <button onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} style={{
-          marginLeft: '16px', padding: '8px 14px',
-          border: '1px solid var(--ink)', background: 'transparent',
-          fontFamily: 'var(--sans)', fontSize: '12px', letterSpacing: '0.08em',
-          cursor: 'pointer', color: 'var(--ink)',
-          transition: 'all 0.3s',
-        }}
-        onMouseEnter={e => { e.target.style.background = 'var(--ink)'; e.target.style.color = 'var(--cream)'; }}
-        onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.color = 'var(--ink)'; }}>
-          {lang === 'zh' ? 'EN' : '中'}
+        </div>
+      )}
+
+      {/* Mobile hamburger button */}
+      {isMobile && (
+        <button onClick={() => setMenuOpen(!menuOpen)} style={{
+          background: 'none', border: 'none', cursor: 'pointer', padding: '8px',
+          display: 'flex', flexDirection: 'column', gap: '5px',
+        }} aria-label="Menu">
+          <span style={{ width: '22px', height: '1.5px', background: 'var(--ink)', transition: 'all 0.3s', transform: menuOpen ? 'translateY(6.5px) rotate(45deg)' : 'none' }} />
+          <span style={{ width: '22px', height: '1.5px', background: 'var(--ink)', opacity: menuOpen ? 0 : 1, transition: 'all 0.3s' }} />
+          <span style={{ width: '22px', height: '1.5px', background: 'var(--ink)', transition: 'all 0.3s', transform: menuOpen ? 'translateY(-6.5px) rotate(-45deg)' : 'none' }} />
         </button>
-      </div>
+      )}
+
+      {/* Mobile menu drawer */}
+      {isMobile && menuOpen && (
+        <div style={{
+          width: '100%', marginTop: '16px',
+          display: 'flex', flexDirection: 'column', gap: '4px',
+          paddingBottom: '8px',
+        }}>
+          {routes.map((r, i) => (
+            <button
+              key={r}
+              onClick={() => handleNavClick(r)}
+              style={{
+                fontSize: '15px',
+                color: route === r ? 'var(--accent)' : 'var(--ink)',
+                background: 'none', border: 'none', cursor: 'pointer',
+                padding: '12px 0', letterSpacing: '0.02em',
+                fontFamily: 'var(--sans)',
+                fontWeight: route === r ? 600 : 400,
+                textAlign: 'left',
+                borderBottom: '1px solid rgba(60, 50, 40, 0.06)',
+              }}
+            >
+              {navLabels[i]}
+            </button>
+          ))}
+          <button onClick={() => { setLang(lang === 'zh' ? 'en' : 'zh'); setMenuOpen(false); }} style={{
+            marginTop: '12px', padding: '10px 14px',
+            border: '1px solid var(--ink)', background: 'transparent',
+            fontFamily: 'var(--sans)', fontSize: '12px', letterSpacing: '0.08em',
+            cursor: 'pointer', color: 'var(--ink)',
+            alignSelf: 'flex-start',
+          }}>
+            {lang === 'zh' ? 'EN — Switch to English' : '中 — 切換為中文'}
+          </button>
+        </div>
+      )}
     </nav>
   );
 };
@@ -2849,21 +2917,21 @@ const ResearchNetwork = ({ t, activeTrack, setActiveTrack, lang }) => {
   const height = 700;
 
   const tracks = [
-    { id: '01', x: 230, y: 240, r: 54, label: lang === 'zh' ? '失智照護' : 'Dementia', labelFull: lang === 'zh' ? '失智照護的\n參與式設計' : 'Participatory\nDementia Care' },
-    { id: '02', x: 770, y: 240, r: 54, label: lang === 'zh' ? '公民科學' : 'Citizen Science', labelFull: lang === 'zh' ? '公民科學 &\nMore-than-Human' : 'Citizen Science &\nMore-than-Human' },
-    { id: '03', x: 230, y: 520, r: 54, label: lang === 'zh' ? '設計思考教育' : 'Design Thinking Education', labelFull: lang === 'zh' ? '設計思考教育的\n方法論創新' : 'Design Thinking Education\nMethodology' },
-    { id: '04', x: 770, y: 520, r: 54, label: lang === 'zh' ? '人本 AI' : 'Human-Centered AI', labelFull: lang === 'zh' ? '人本 AI 設計\n(發展中)' : 'Human-Centered AI\n(Emerging)' },
+    { id: '01', x: 230, y: 240, r: 66, label: lang === 'zh' ? '失智照護' : 'Dementia', labelFull: lang === 'zh' ? '失智照護的\n參與式設計' : 'Participatory\nDementia Care' },
+    { id: '02', x: 770, y: 240, r: 66, label: lang === 'zh' ? '公民科學' : 'Citizen Science', labelFull: lang === 'zh' ? '公民科學 &\nMore-than-Human' : 'Citizen Science &\nMore-than-Human' },
+    { id: '03', x: 230, y: 520, r: 66, label: lang === 'zh' ? '設計思考教育' : 'Design Thinking Education', labelFull: lang === 'zh' ? '設計思考教育的\n方法論創新' : 'Design Thinking Education\nMethodology' },
+    { id: '04', x: 770, y: 520, r: 66, label: lang === 'zh' ? '人本 AI' : 'Human-Centered AI', labelFull: lang === 'zh' ? '人本 AI 設計\n(發展中)' : 'Human-Centered AI\n(Emerging)' },
   ];
 
   // Projects positioned around their track(s)
   const projects = [
-    { id: 1, x: 105, y: 125, r: 22, tracks: ['01'], label: t.projects.items[0].title, short: lang === 'zh' ? '認知悠能' : 'Cognitive Vitality' },
-    { id: 6, x: 105, y: 360, r: 22, tracks: ['01'], label: t.projects.items[5].title, short: lang === 'zh' ? '活躍高齡化' : 'Active Aging' },
-    { id: 2, x: 895, y: 125, r: 22, tracks: ['02'], label: t.projects.items[1].title, short: lang === 'zh' ? '蛙抵家' : 'Identifrog' },
-    { id: 5, x: 895, y: 360, r: 22, tracks: ['02'], label: t.projects.items[4].title, short: lang === 'zh' ? '防災教育' : 'Disaster Edu' },
-    { id: 3, x: 105, y: 640, r: 22, tracks: ['03'], label: t.projects.items[2].title, short: lang === 'zh' ? '苗圃計畫' : 'Miaopu' },
-    { id: 7, x: 355, y: 640, r: 22, tracks: ['03'], label: t.projects.items[6].title, short: lang === 'zh' ? '堉璘 Changemaker' : 'Yu-Lin Changemaker' },
-    { id: 4, x: 895, y: 640, r: 22, tracks: ['04'], label: t.projects.items[3].title, short: 'Talaria' },
+    { id: 1, x: 105, y: 125, r: 28, tracks: ['01'], label: t.projects.items[0].title, short: lang === 'zh' ? '認知悠能' : 'Cognitive Vitality' },
+    { id: 6, x: 105, y: 360, r: 28, tracks: ['01'], label: t.projects.items[5].title, short: lang === 'zh' ? '活躍高齡化' : 'Active Aging' },
+    { id: 2, x: 895, y: 125, r: 28, tracks: ['02'], label: t.projects.items[1].title, short: lang === 'zh' ? '蛙抵家' : 'Identifrog' },
+    { id: 5, x: 895, y: 360, r: 28, tracks: ['02'], label: t.projects.items[4].title, short: lang === 'zh' ? '防災教育' : 'Disaster Edu' },
+    { id: 3, x: 105, y: 640, r: 28, tracks: ['03'], label: t.projects.items[2].title, short: lang === 'zh' ? '苗圃計畫' : 'Miaopu' },
+    { id: 7, x: 355, y: 640, r: 28, tracks: ['03'], label: t.projects.items[6].title, short: lang === 'zh' ? '堉璘 Changemaker' : 'Yu-Lin Changemaker' },
+    { id: 4, x: 895, y: 640, r: 28, tracks: ['04'], label: t.projects.items[3].title, short: 'Talaria' },
   ];
 
   // Cross-track connections (dashed lines) — actual research linkages
@@ -3018,7 +3086,7 @@ const ResearchNetwork = ({ t, activeTrack, setActiveTrack, lang }) => {
                   <text
                     x={midX} y={midY - 6}
                     fill="var(--muted)"
-                    fontSize="9"
+                    fontSize="12"
                     fontFamily="var(--sans)"
                     textAnchor="middle"
                     opacity={isActive ? 0.85 : 0.35}
@@ -3057,7 +3125,7 @@ const ResearchNetwork = ({ t, activeTrack, setActiveTrack, lang }) => {
                     d={`M ${pX} ${pY} Q ${mx + perpX} ${my + perpY} ${tX} ${tY}`}
                     fill="none"
                     stroke={trackColors[trackId]}
-                    strokeWidth={active ? 2 : 1}
+                    strokeWidth={active ? 3 : 1.5}
                     strokeOpacity={dimmed ? 0.08 : active ? 0.7 : 0.25}
                     strokeLinecap="round"
                     strokeDasharray={active ? 'none' : '3 4'}
@@ -3108,10 +3176,10 @@ const ResearchNetwork = ({ t, activeTrack, setActiveTrack, lang }) => {
                   />
                   {/* Track number */}
                   <text
-                    x={tX} y={tY + 4}
+                    x={tX} y={tY + 5}
                     textAnchor="middle"
                     fontFamily="Fraunces, serif"
-                    fontSize="34"
+                    fontSize="40"
                     fontWeight="300"
                     fill="var(--cream)"
                     letterSpacing="-1"
@@ -3121,10 +3189,10 @@ const ResearchNetwork = ({ t, activeTrack, setActiveTrack, lang }) => {
                   </text>
                   {/* Label below */}
                   <text
-                    x={tX} y={tY + track.r + 28}
+                    x={tX} y={tY + track.r + 30}
                     textAnchor="middle"
                     fontFamily="Noto Serif TC, Fraunces, serif"
-                    fontSize="16"
+                    fontSize="19"
                     fontWeight="500"
                     fill="var(--ink)"
                     opacity={dimmed ? 0.3 : 1}
@@ -3211,10 +3279,10 @@ const ResearchNetwork = ({ t, activeTrack, setActiveTrack, lang }) => {
                   {/* Project label */}
                   <text
                     x={pX}
-                    y={pY + project.r + 20}
+                    y={pY + project.r + 22}
                     textAnchor="middle"
                     fontFamily="Noto Sans TC, Inter, sans-serif"
-                    fontSize="12"
+                    fontSize="15"
                     fontWeight="500"
                     fill="var(--ink)"
                     opacity={dimmed ? 0.3 : 1}
@@ -3984,7 +4052,61 @@ export default function App() {
           50% { transform: scaleY(1.3); opacity: 1; }
         }
         html { scroll-behavior: smooth; }
+        html, body { overflow-x: hidden; max-width: 100vw; }
         ::selection { background: var(--accent); color: var(--cream); }
+        
+        /* Mobile responsive overrides */
+        @media (max-width: 767px) {
+          /* Reduce ALL section paddings on mobile (covers more padding formats) */
+          section[style*="48px"] {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+          }
+          section[style*="80px 48px"],
+          section[style*="100px 48px"],
+          section[style*="120px 48px"],
+          section[style*="140px 48px"],
+          section[style*="160px 48px"],
+          section[style*="180px 48px"] {
+            padding-top: 60px !important;
+            padding-bottom: 60px !important;
+          }
+          /* Reduce inner div paddings */
+          div[style*="padding: 0 48px"] {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+          }
+          /* Force flex containers to wrap at lower threshold */
+          div[style*="minWidth: '280px'"],
+          div[style*="minWidth: \"280px\""] {
+            min-width: 100% !important;
+            flex-basis: 100% !important;
+          }
+          /* Smaller stat numbers on mobile */
+          div[style*="fontSize: 'clamp(56px, 8vw, 120px)'"] {
+            font-size: 44px !important;
+          }
+          /* Hero adjustments */
+          h1 { word-break: keep-all; overflow-wrap: break-word; }
+          /* SVG: maximize width on mobile */
+          svg {
+            max-width: 100% !important;
+            width: 100% !important;
+            height: auto !important;
+            max-height: none !important;
+          }
+          /* Tables and grids */
+          div[style*="grid-template-columns"], 
+          div[style*="gridTemplateColumns"] {
+            grid-template-columns: 1fr !important;
+          }
+          /* Make all containers respect viewport width */
+          div[style*="maxWidth: '1400px'"],
+          div[style*="maxWidth: '1200px'"],
+          div[style*="maxWidth: '1100px'"] {
+            max-width: 100% !important;
+          }
+        }
       `}</style>
 
       <GrainTexture />
