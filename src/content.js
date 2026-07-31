@@ -303,7 +303,7 @@ export const projects = [
     track: '04',
     nature: 'industry',
     years: '2024–',
-    image: '/img/talaria.jpg',
+    image: null, // 介面持續更新中，暫不放截圖；日後要放就填 '/img/檔名.jpg'
     zh: {
       title: 'Talaria',
       short: 'Talaria',
