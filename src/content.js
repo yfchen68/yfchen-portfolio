@@ -136,17 +136,19 @@ export const trackLinks = [
 export const positioning = {
   zh: {
     label: '研究定位',
-    body: '我的研究關心那些容易被忽略的人、關係與生活情境。我相信，設計思考不是一套解決問題的流程，而是一種理解生活的哲學。我用三個動作工作：探索、轉譯、等待。探索尚未被看見的需求，轉譯不同世界之間的知識與經驗，等待設計進入真實生活，被人們重新詮釋與塑造。因為設計需要被實際使用，才會顯現它真正的形狀。',
+    // 完整的自我介紹與研究歷程放在 yfchen.info，這裡只留論點，
+    // 避免兩個站放幾乎相同的內容而互相壓過對方的搜尋排名。
     thesis: '我的研究不是在設計產品，而是在設計「參與」本身。',
     question:
       '如何讓原本沒有聲音、沒有參與機會的人（或甚至非人），透過設計重新成為參與者。',
+    bridge: '以下四條軸線，是這個問題在四個場域裡的展開。',
   },
   en: {
     label: 'Research Position',
-    body: 'My research attends to the people, the relationships, and the everyday situations that are easily overlooked. I believe design thinking is not a procedure for solving problems, but a philosophy for understanding life. I work through three actions: explore, translate, wait. Exploring needs that have not yet been seen; translating knowledge and experience between different worlds; waiting for a design to enter real life, to be reinterpreted and reshaped by the people who use it. Because a design only reveals its true shape once it is actually used.',
     thesis: 'My research is not about designing products. It is about designing participation itself.',
     question:
       'How can those who have had no voice and no opportunity to take part — people, or even non-people — become participants again, through design.',
+    bridge: 'The four tracks below are how that question unfolds across four sites.',
   },
 };
 

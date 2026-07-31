@@ -282,11 +282,9 @@ function Positioning({ lang }) {
     <section className="section section--tint" id="positioning">
       <div className="wrap wrap--narrow reveal" ref={revealRef}>
         <p className="eyebrow">{c.label}</p>
-        <p className="positioning__body">{c.body}</p>
-        <div className="positioning__claim">
-          <p className="positioning__thesis">{c.thesis}</p>
-          <p className="positioning__question">{c.question}</p>
-        </div>
+        <p className="positioning__thesis">{c.thesis}</p>
+        <p className="positioning__question">{c.question}</p>
+        <p className="positioning__bridge">{c.bridge}</p>
       </div>
     </section>
   );
