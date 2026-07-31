@@ -1381,3 +1381,20 @@ img {
   color: var(--muted);
   margin-bottom: 3px;
 }
+
+/* ── 中文模式：關掉合成斜體 ───────────────────────
+   中文字體沒有真正的斜體，瀏覽器只能把字做傾斜變形（faux
+   oblique）——那不是一種字體樣式，是一個 skew 變換，中文
+   排版裡算是瑕疵。以下這些元素在中文模式下一定是中文，
+   所以改回正體；強調靠襯線體與軸線色就夠了。
+
+   .track__alt 與 .proj__subtitle 不在此列：前者在中文模式
+   下顯示的是英文標題，後者本來就一直是英文，兩者的斜體
+   由 Fraunces 真正的義大利體繪製，要保留。 */
+
+html[lang='zh-Hant'] .hero__sub,
+html[lang='zh-Hant'] .track__tagline,
+html[lang='zh-Hant'] .proj__quote,
+html[lang='zh-Hant'] .map__legend-cross {
+  font-style: normal;
+}
