@@ -658,6 +658,7 @@ export const mapLayout = {
 // 介面文字
 // ─────────────────────────────────────────────
 
+export const SITE_URL = 'https://work.yfchen.info';
 export const FULL_PROFILE_URL = 'https://www.yfchen.info';
 export const PUBLICATIONS_URL = 'https://www.yfchen.info/研究著作';
 

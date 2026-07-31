@@ -9,6 +9,7 @@ import {
   positioning,
   contact,
   pageMeta,
+  SITE_URL,
   FULL_PROFILE_URL,
   PUBLICATIONS_URL,
 } from './content';
@@ -24,30 +25,75 @@ import './styles.css';
 
 const ROUTES = ['home', 'projects'];
 
-function parseHash() {
-  const raw = (window.location.hash || '').replace(/^#\/?/, '');
+/** 網址 → { route, param }。`/` = home，`/projects/4` = 專案 4。 */
+function parsePath() {
+  const raw = window.location.pathname.replace(/^\/+|\/+$/g, '');
+  if (!raw) return { route: 'home', param: null };
   const [route, param] = raw.split('/');
-  return { route: route || 'home', param: param || null };
+  return { route, param: param || null };
+}
+
+/** route + param → 網址字串。整站只有這裡在組網址。 */
+export function hrefFor(route, param) {
+  if (route === 'home') return '/';
+  return param ? `/${route}/${param}` : `/${route}`;
+}
+
+/**
+ * 舊版是 hash routing（#/projects/4）。已經發出去的連結和書籤還在，
+ * 所以進站時如果偵測到舊格式，就換成對應的新網址。
+ * 用 replaceState 而不是 pushState，讓上一頁不會卡在舊網址上。
+ */
+function migrateLegacyHash() {
+  const hash = window.location.hash || '';
+  if (!hash.startsWith('#/')) return;
+  const [route, param] = hash.slice(2).split('/');
+  const target = hrefFor(route || 'home', param || null);
+  window.history.replaceState({}, '', target);
 }
 
 function useRouter() {
-  const [loc, setLoc] = useState(parseHash);
+  const [loc, setLoc] = useState(() => {
+    migrateLegacyHash();
+    return parsePath();
+  });
 
   useEffect(() => {
-    const onChange = () => {
-      setLoc(parseHash());
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    };
-    window.addEventListener('hashchange', onChange);
-    return () => window.removeEventListener('hashchange', onChange);
+    const onPop = () => setLoc(parsePath());
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, []);
 
   const navigate = useCallback((route, param) => {
-    window.location.hash = param ? `/${route}/${param}` : `/${route}`;
+    const target = hrefFor(route, param);
+    if (target === window.location.pathname) return;
+    window.history.pushState({}, '', target);
+    setLoc(parsePath());
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }, []);
 
   const isKnown = ROUTES.includes(loc.route);
   return { ...loc, isKnown, navigate };
+}
+
+/**
+ * 真正的 <a href>，不是 button。
+ * 搜尋引擎要靠 href 才找得到 /projects；使用者也才能用 cmd+click 開新分頁。
+ * 一般點擊仍然走前端路由，不會整頁重載。
+ */
+function Link({ to, param = null, navigate, className, children, ...rest }) {
+  const href = hrefFor(to, param);
+  const onClick = (e) => {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    navigate(to, param);
+  };
+  return (
+    <a href={href} className={className} onClick={onClick} {...rest}>
+      {children}
+    </a>
+  );
 }
 
 // ============================================================
@@ -143,6 +189,37 @@ function setMeta(name, value) {
   el.setAttribute('content', value);
 }
 
+function setProp(property, value) {
+  let el = document.querySelector(`meta[property="${property}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute('property', property);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', value);
+}
+
+function setCanonical(url) {
+  let el = document.querySelector('link[rel="canonical"]');
+  if (!el) {
+    el = document.createElement('link');
+    el.setAttribute('rel', 'canonical');
+    document.head.appendChild(el);
+  }
+  el.setAttribute('href', url);
+}
+
+function setJsonLd(data) {
+  let el = document.getElementById('ld-json');
+  if (!el) {
+    el = document.createElement('script');
+    el.type = 'application/ld+json';
+    el.id = 'ld-json';
+    document.head.appendChild(el);
+  }
+  el.textContent = JSON.stringify(data);
+}
+
 // ============================================================
 // 背景紋理
 // ============================================================
@@ -183,16 +260,16 @@ function Nav({ lang, setLang, route, navigate }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const go = (r) => {
-    navigate(r);
+  const go = (r, param) => {
+    navigate(r, param);
     setOpen(false);
   };
 
   return (
     <nav className={`nav${scrolled ? ' is-scrolled' : ''}${open ? ' is-open' : ''}`}>
-      <button className="nav__brand" onClick={() => go('home')}>
+      <Link to="home" navigate={go} className="nav__brand">
         Yen-Fu Chen<span>陳彥甫</span>
-      </button>
+      </Link>
 
       <button
         className="nav__burger"
@@ -206,18 +283,22 @@ function Nav({ lang, setLang, route, navigate }) {
       </button>
 
       <div className="nav__links">
-        <button
+        <Link
+          to="home"
+          navigate={go}
           className={`nav__link${route === 'home' ? ' nav__link--active' : ''}`}
-          onClick={() => go('home')}
+          aria-current={route === 'home' ? 'page' : undefined}
         >
           {t.nav.home}
-        </button>
-        <button
+        </Link>
+        <Link
+          to="projects"
+          navigate={go}
           className={`nav__link${route === 'projects' ? ' nav__link--active' : ''}`}
-          onClick={() => go('projects')}
+          aria-current={route === 'projects' ? 'page' : undefined}
         >
           {t.nav.projects}
-        </button>
+        </Link>
         <a className="nav__link nav__link--out" href={FULL_PROFILE_URL}>
           {t.nav.profile}
         </a>
@@ -337,13 +418,6 @@ function ResearchMap({ lang, navigate }) {
   const activate = (k) => setActive(k);
   const clear = () => setActive(null);
 
-  const nodeKeyHandler = (fn) => (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      fn();
-    }
-  };
-
   return (
     <section className="section" id="map">
       <div className="wrap reveal" ref={revealRef}>
@@ -451,22 +525,15 @@ function ResearchMap({ lang, navigate }) {
               const lit = trackIsLit(tr.id);
               const r = layout.trackRadius;
               return (
-                <g
+                <a
                   key={`t-${tr.id}`}
+                  href={`#track-${tr.id}`}
                   className="map__node"
                   style={{ animationDelay: `${0.1 + i * 0.09}s` }}
-                  tabIndex={0}
-                  role="link"
                   aria-label={tr[lang].title}
                   onMouseEnter={() => activate(`t:${tr.id}`)}
                   onFocus={() => activate(`t:${tr.id}`)}
                   onBlur={clear}
-                  onClick={() => {
-                    document.getElementById(`track-${tr.id}`)?.scrollIntoView({ block: 'start' });
-                  }}
-                  onKeyDown={nodeKeyHandler(() =>
-                    document.getElementById(`track-${tr.id}`)?.scrollIntoView({ block: 'start' })
-                  )}
                 >
                   <circle cx={x} cy={y} r={r + (lit ? 34 : 14)} fill={`url(#halo-${tr.id})`} />
                   <circle
@@ -513,7 +580,7 @@ function ResearchMap({ lang, navigate }) {
                   >
                     {tr[lang].short}
                   </text>
-                </g>
+                </a>
               );
             })}
 
@@ -523,20 +590,22 @@ function ResearchMap({ lang, navigate }) {
               const tr = trackById(p.track);
               const lit = projectIsLit(p.id);
               const r = layout.projectRadius;
-              const openProject = () => navigate('projects', p.id);
+              const openProject = (e) => {
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                e.preventDefault();
+                navigate('projects', p.id);
+              };
               return (
-                <g
+                <a
                   key={`p-${p.id}`}
+                  href={hrefFor('projects', p.id)}
                   className="map__node"
                   style={{ animationDelay: `${0.34 + i * 0.06}s` }}
-                  tabIndex={0}
-                  role="link"
                   aria-label={p[lang].title}
                   onMouseEnter={() => activate(`p:${p.id}`)}
                   onFocus={() => activate(`p:${p.id}`)}
                   onBlur={clear}
                   onClick={openProject}
-                  onKeyDown={nodeKeyHandler(openProject)}
                 >
                   <circle className="map__focusring" cx={x} cy={y} r={r + 10} />
                   <circle
@@ -568,7 +637,7 @@ function ResearchMap({ lang, navigate }) {
                   >
                     {p[lang].short}
                   </text>
-                </g>
+                </a>
               );
             })}
           </svg>
@@ -747,9 +816,9 @@ function HomePage({ lang, navigate }) {
       <Tracks lang={lang} />
       <section className="section section--dark section--tight">
         <div className="wrap" style={{ textAlign: 'center' }}>
-          <button className="btn btn--onDark" onClick={() => navigate('projects')}>
+          <Link to="projects" navigate={navigate} className="btn btn--onDark">
             {t.viewProjects} →
-          </button>
+          </Link>
         </div>
       </section>
       <Publications lang={lang} />
@@ -834,17 +903,18 @@ function ProjectsPage({ lang, param, navigate }) {
 
           <div className="tabs" role="tablist">
             {visible.map((p) => (
-              <button
+              <Link
                 key={p.id}
-                role="tab"
-                aria-selected={p.id === activeId}
+                to="projects"
+                param={p.id}
+                navigate={navigate}
+                aria-current={p.id === activeId ? 'page' : undefined}
                 className={`tab${p.id === activeId ? ' is-on' : ''}`}
                 style={{ '--tab-color': trackById(p.track).color }}
-                onClick={() => select(p.id)}
               >
                 <span className="tab__dot" style={{ background: natureColor[p.nature] }} />
                 {p[lang].short}
-              </button>
+              </Link>
             ))}
           </div>
 
@@ -914,9 +984,9 @@ function ProjectsPage({ lang, param, navigate }) {
           </article>
 
           <div className="btn-row">
-            <button className="btn" onClick={() => navigate('home')}>
+            <Link to="home" navigate={navigate} className="btn">
               ← {t.backHome}
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -940,9 +1010,9 @@ function NotFound({ lang, navigate }) {
         {t.notFoundBody}
       </p>
       <div>
-        <button className="btn" onClick={() => navigate('home')}>
+        <Link to="home" navigate={navigate} className="btn">
           ← {t.backHome}
-        </button>
+        </Link>
       </div>
     </section>
   );
@@ -1014,17 +1084,57 @@ export default function App() {
   const { route, param, isKnown, navigate } = useRouter();
   const t = ui[lang];
 
-  // <html lang> 與每頁的 title / description
+  // <html lang>、每頁的 title / description / canonical / og
   useEffect(() => {
     document.documentElement.lang = t.lang;
-    const meta = pageMeta[route]?.[lang];
-    if (isKnown && meta) {
-      document.title = meta.title;
-      setMeta('description', meta.desc);
-    } else if (!isKnown) {
-      document.title = `${t.notFoundTitle} | Yen-Fu Chen`;
+
+    let title;
+    let desc;
+    let canonicalPath;
+
+    if (!isKnown) {
+      title = `${t.notFoundTitle} | Yen-Fu Chen`;
+      desc = t.notFoundBody;
+      canonicalPath = '/';
+    } else if (route === 'projects') {
+      // /projects 沒帶編號時顯示第一個專案，canonical 指向它，
+      // 避免 /projects 和 /projects/1 被當成兩頁重複內容。
+      const proj = projectById(param) ?? projects[0];
+      const c = proj[lang];
+      title = `${c.title}｜${pageMeta.projects[lang].title}`;
+      desc = `${c.subtitle}。${c.reflection}`;
+      canonicalPath = hrefFor('projects', proj.id);
+    } else {
+      title = pageMeta.home[lang].title;
+      desc = pageMeta.home[lang].desc;
+      canonicalPath = '/';
     }
-  }, [route, lang, isKnown, t]);
+
+    document.title = title;
+    setMeta('description', desc);
+    setCanonical(SITE_URL + canonicalPath);
+    setProp('og:title', title);
+    setProp('og:description', desc);
+    setProp('og:url', SITE_URL + canonicalPath);
+    setProp('og:type', 'website');
+    setProp('og:site_name', 'Yen-Fu Chen');
+
+    setJsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: 'Yen-Fu Chen',
+      alternateName: '陳彥甫',
+      jobTitle: lang === 'zh' ? '副教授' : 'Associate Professor',
+      affiliation: {
+        '@type': 'CollegeOrUniversity',
+        name: lang === 'zh' ? '大同大學 數位媒體設計學系' : 'Tatung University, Digital Media Design',
+      },
+      email: `mailto:${contact.email}`,
+      url: SITE_URL,
+      sameAs: [FULL_PROFILE_URL, contact.orcid, contact.scholar, contact.researchgate],
+      knowsAbout: tracks.map((tr) => tr.en.title),
+    });
+  }, [route, param, lang, isKnown, t]);
 
   return (
     <>
