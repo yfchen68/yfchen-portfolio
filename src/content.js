@@ -492,7 +492,9 @@ export const projects = [
 //     venueZh: null,             // 只有中文刊名不同時才填
 //     tag: 'SSCI',               // 顯示在刊名下方的標籤
 //     authors: 'Chen, Y-F., ...',
-//     authorsZh: null,           // 只有中文作者列不同時才填
+//     authorsZh: null,           // 只有「中文期刊」才填中文作者列。作者名的形式
+//                                // 跟著論文本身的語言走，不跟著介面語言走 —— 作者列
+//                                // 是引用資訊，正確形式由期刊決定。
 //     title: 'English Title',
 //     titleZh: null,             // 只有中文標題不同時才填
 //     doi: '10.xxxx/xxxxx',      // 沒有就寫 null
@@ -510,7 +512,7 @@ export const publications = [
     venueZh: null,
     tag: 'SSCI',
     authors: 'Chen, Y-F., Hung, C-M., Yao, Y-T., & Chung, S-T.',
-    authorsZh: '陳彥甫、洪嘉妙、姚彥廷、鍾適存',
+    authorsZh: null, // 英文期刊，引用形式就是英文；中文期刊才填中文作者列
     title:
       'Designing Engagement in Dementia Care: Embodied Participation, Situated Adaptation, and Co-Design-In-Practice',
     titleZh: null,
