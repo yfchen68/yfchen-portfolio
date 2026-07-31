@@ -1,0 +1,6 @@
+把從舊版 App.jsx 抽出來的 talaria.jpg 放進這個資料夾，
+然後刪掉這個 .txt 檔。
+
+如果暫時沒有圖也沒關係 —— 打開 src/content.js，
+搜尋 image: '/img/talaria.jpg'，改成 image: null，
+網站一樣會正常運作，只是 Talaria 那頁沒有圖。
