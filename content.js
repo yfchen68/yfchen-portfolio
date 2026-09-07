@@ -221,7 +221,7 @@ export const projects = [
       site: '全台蛙類棲地（以濕地為主）',
       collaboration: '大浪據文化（生態內容）、景澤創意（公民科學社群經營）、元智大學蘇泰元（AI 聲音辨識）',
       grant: '國科會、大浪據文化、景澤創意',
-      outcome: '上架 App、IRB 通過、AI 蛙類聲音辨識模型、GitHub 開源',
+      outcome: '發表於 CoDesign 期刊、上架 App、IRB 通過、AI 蛙類聲音辨識模型、GitHub 開源',
       narrative:
         '為什麼是蛙類？不是貓狗、不是鳥類，也不是蝴蝶。\n\n青蛙特別的地方，在於我們很少為牠們「停下來聽」。牠們的存在不像鳥鳴那樣清亮，也不像昆蟲那樣隨處可見—蛙鳴往往藏在春夏的雨夜裡，只有當一個人願意停下腳步、打開耳朵，才會被聽見。做一個讓公民聽青蛙的 App，本質上是在邀請大家重新感知那些平常不會被注意到的生活環境。這是 More-than-Human Design 的起點：我們不是為人類的方便設計，而是為人與蛙共同存在的那個環境設計。\n\n蛙抵家是一個跨單位的協作成果。大同大學負責設計與使用者經驗、大浪據文化負責生態內容、景澤創意負責公民科學社群經營、元智大學（蘇泰元老師）負責 AI 聲音辨識。把生態學家、社群經營者、AI 工程師、設計師的語言整合進同一個介面，是這個研究最困難的部分—每一方對「怎樣才叫一次有意義的觀察」都有自己的堅持。我們花了很多時間把這些堅持對齊，才做出一個讓一般人真的打得開、用得下去的 App。\n\n公民科學的意義，不是讓民眾變成科學家，而是讓科學變成生活的一部分。',
       methods: [
@@ -241,7 +241,7 @@ export const projects = [
       collaboration:
         'DaLangJu Culture (ecological content), ECoDreaming (citizen science community), Yuan Ze University — Prof. Su Tai-Yuan (AI sound recognition)',
       grant: 'NSTC, DaLangJu Culture, ECoDreaming',
-      outcome: 'Published app, IRB approval, AI frog sound recognition model, GitHub repository',
+      outcome: 'Published in CoDesign; published app, IRB approval, AI frog sound recognition model, GitHub repository',
       narrative:
         'Why frogs? Not cats or dogs, not birds, not butterflies.\n\nWhat is special about frogs is that we rarely "stop to listen" for them. Their presence is not as clear as birdsong, nor as ubiquitous as insects — frog calls are hidden in the rainy nights of spring and summer, heard only when a person is willing to stop, and open their ears. To build an app that invites citizens to listen to frogs is, fundamentally, to invite people to re-perceive the living environments that usually go unnoticed. This is the starting point of More-than-Human Design: we design not for human convenience, but for the environment in which humans and frogs co-exist.\n\nIdentifrog is a cross-institutional collaboration. Tatung University leads design and user experience; DaLangJu Culture handles ecological content; ECoDreaming manages the citizen science community; Yuan Ze University develops the AI sound recognition. Integrating the languages of ecologists, community organizers, AI engineers, and designers into one interface is the hardest part of this research — each party has its own insistence on what counts as "a meaningful observation." We spent a long time aligning these insistences, so we could build an app that ordinary people could actually open and keep using.\n\nThe meaning of citizen science is not to turn citizens into scientists, but to make science part of everyday life.',
       methods: [
@@ -505,6 +505,21 @@ export const projects = [
 // ─────────────────────────────────────────────
 
 export const publications = [
+  {
+    id: 'listening-with-frogs',
+    type: 'journal',
+    year: '2026',
+    track: '02',
+    venue: 'CoDesign',
+    venueZh: null,
+    tag: 'AHCI', // 待確認：不同索引資料庫對 CoDesign 的標示不一致，請以你查到的為準
+    authors: 'Chen, Y-F., Wu, S-J., & Su, T-Y.',
+    authorsZh: null,
+    title: 'Listening with Frogs: Sonic Thick Mapping for More-than-Human Participation',
+    titleZh: null,
+    doi: '10.1080/15710882.2026.2726166',
+    award: null,
+  },
   {
     id: 'designing-engagement',
     type: 'journal',
